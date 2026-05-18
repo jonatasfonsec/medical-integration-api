@@ -10,15 +10,23 @@ import { CreatePedidoDto } from './dto/create-pedido.dto';
 
 import { BadRequestException } from '@nestjs/common';
 
+import { Exame } from '../exames/entities/exame.entity';
+
 @Injectable()
 export class PedidosService {
+
 
   constructor(
 
     @InjectRepository(Pedido)
     private pedidoRepository: Repository<Pedido>,
 
+    @InjectRepository(Exame)
+    private exameRepository: Repository<Exame>,
+
   ) { }
+
+
 
   async create(createPedidoDto: CreatePedidoDto) {
 
@@ -34,15 +42,33 @@ export class PedidosService {
       );
     }
 
+    const exameExistente =
+      await this.exameRepository.findOne({
+
+        where: {
+          accessionNumber:
+            createPedidoDto.accessionNumber,
+        },
+      });
+
+
     const pedido = this.pedidoRepository.create({
 
       ...createPedidoDto,
 
-      integrado: false,
-
+      integrado: !!exameExistente
     });
 
     return this.pedidoRepository.save(pedido);
+  }
+
+  async findOne(codigoPedido: number) {
+
+    return this.pedidoRepository.findOne({
+      where: {
+        codigoPedido,
+      },
+    });
   }
 
   async findAll() {

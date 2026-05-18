@@ -7,6 +7,9 @@ export class Pedido {
   codigoPedido: number;
 
   @Column()
+  accessionNumber: string;
+
+  @Column()
   nomePaciente: string;
 
   @Column()
@@ -20,4 +23,6 @@ export class Pedido {
 
   @Column({ default: false })
   integrado: boolean;
+
+
 }

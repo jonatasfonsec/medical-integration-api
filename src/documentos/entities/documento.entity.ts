@@ -20,4 +20,7 @@ export class Documento {
 
   @Column({ default: false })
   integrado: boolean;
+
+  @Column({ default: false })
+  vinculado: boolean;
 }

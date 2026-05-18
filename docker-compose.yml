@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+
+  app:
+
+    build: .
+
+    container_name: medical-integration-api
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+      - ./data:/app/data
+
+    restart: unless-stopped

@@ -6,9 +6,11 @@ import { PedidosController } from './pedidos.controller';
 
 import { Pedido } from './entities/pedido.entity';
 
+import { Exame } from '../exames/entities/exame.entity';
+
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Pedido]),
+    TypeOrmModule.forFeature([Pedido, Exame]),
   ],
 
   controllers: [PedidosController],

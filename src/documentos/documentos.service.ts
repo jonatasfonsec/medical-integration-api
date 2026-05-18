@@ -1,26 +1,95 @@
-import { Injectable } from '@nestjs/common';
+import {
+
+  Injectable,
+
+  BadRequestException,
+
+  NotFoundException,
+
+} from '@nestjs/common';
+
+import { InjectRepository } from '@nestjs/typeorm';
+
+import { Repository } from 'typeorm';
+
+import { Documento } from './entities/documento.entity';
+
+import { Pedido } from '../pedidos/entities/pedido.entity';
+
 import { CreateDocumentoDto } from './dto/create-documento.dto';
-import { UpdateDocumentoDto } from './dto/update-documento.dto';
 
 @Injectable()
 export class DocumentosService {
-  create(createDocumentoDto: CreateDocumentoDto) {
-    return 'This action adds a new documento';
+
+  constructor(
+
+    @InjectRepository(Documento)
+    private documentoRepository: Repository<Documento>,
+
+    @InjectRepository(Pedido)
+    private pedidoRepository: Repository<Pedido>,
+
+  ) { }
+
+  async create(createDocumentoDto: CreateDocumentoDto) {
+
+    const pedido = await this.pedidoRepository.findOne({
+      where: {
+        codigoPedido: createDocumentoDto.codigoPedido,
+      },
+    });
+
+    if (!pedido) {
+      throw new NotFoundException(
+        'Pedido não encontrado',
+      );
+    }
+
+    const documentoExistente =
+      await this.documentoRepository.findOne({
+
+        where: {
+
+          codigoDocumento:
+            createDocumentoDto.codigoDocumento,
+
+          codigoPedido:
+            createDocumentoDto.codigoPedido,
+        },
+      });
+
+    if (documentoExistente) {
+      throw new BadRequestException(
+        'Documento já cadastrado para este pedido',
+      );
+    }
+
+    const documento = this.documentoRepository.create({
+
+      ...createDocumentoDto,
+
+      integrado: false,
+
+      vinculado: pedido.integrado,
+
+
+    });
+
+    return this.documentoRepository.save(documento);
   }
 
-  findAll() {
-    return `This action returns all documentos`;
+  async findByPedido(
+    codigoPedido: number,
+  ) {
+
+    return this.documentoRepository.find({
+      where: {
+        codigoPedido,
+      },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} documento`;
-  }
-
-  update(id: number, updateDocumentoDto: UpdateDocumentoDto) {
-    return `This action updates a #${id} documento`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} documento`;
+  async findAll() {
+    return this.documentoRepository.find();
   }
 }

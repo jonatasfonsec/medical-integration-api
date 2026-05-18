@@ -7,6 +7,9 @@ export class Exame {
   accessionNumber: string;
 
   @Column()
+  codigoPedido: number;
+
+  @Column()
   nomePaciente: string;
 
   @Column()
